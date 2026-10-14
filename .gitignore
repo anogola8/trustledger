@@ -8,3 +8,14 @@ staticfiles/*
 !staticfiles/.gitkeep
 .coverage
 htmlcov/
+
+# Dev scripts and artifacts
+load-*_*.csv
+security_test.py
+profile_pages.py
+rate_limit_test.py
+time_*.py
+cache_avatars.py
+print_credentials.py
+locustfile.py
+private/
