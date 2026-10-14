@@ -57,7 +57,7 @@ def _register(request, form_class, title, intro):
     if request.method == 'POST' and form.is_valid():
         user = form.save()
         log(user, 'user.register', 'user', user.pk, {'role': user.role})
-        login(request, user)
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
         verification = EmailVerification.objects.create(user=user)
         send_verification_email(request, user, verification)
         messages.success(request, 'Welcome to TrustLedger! Check your email for the verification link.')

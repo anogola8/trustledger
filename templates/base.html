@@ -85,7 +85,7 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end">
               {% if user.is_worker %}<li><a class="dropdown-item" href="{% url 'workers:manage' %}">Edit Profile</a></li>{% endif %}
-              {% if user.is_employer %}<li><a class="dropdown-item" href="{% url 'employers:profile' %}">Company Profile</a></li>{% endif %}
+              {% if user.is_employer %}<li><a class="dropdown-item" href="{% url 'employers:edit' %}">Company Profile</a></li>{% endif %}
               <li><hr class="dropdown-divider"></li>
               <li>
                 <form method="post" action="{% url 'accounts:logout' %}" class="m-0">
