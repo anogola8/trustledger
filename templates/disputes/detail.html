@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% block title %}Dispute #{{ d.pk }}{% endblock %}
+{% block content %}
+<div class="row g-3"><div class="col-lg-8"><div class="card"><div class="card-body">
+  <h1 class="h4">Dispute #{{ d.pk }} <span class="badge bg-secondary">{{ d.get_status_display }}</span></h1>
+  <p class="text-muted">On <a href="{% url 'attestations:detail' d.attestation.pk %}">{{ d.attestation.role_title }}</a> for {{ d.attestation.worker.full_name }} issued by {{ d.attestation.employer.organisation_name }}</p>
+  <h2 class="h6">Raised by {{ d.raised_by.username }} on {{ d.created_at }}</h2><p>{{ d.reason|linebreaksbr }}</p>
+  {% if d.evidence %}<a href="{% url 'disputes:evidence' d.pk %}" target="_blank" rel="noopener">View evidence file</a>{% endif %}
+  {% if d.status != 'open' %}<hr><h2 class="h6">Decision</h2><p>{{ d.decision_note|linebreaksbr }}</p><small class="text-muted">Resolved {{ d.resolved_at }} by {{ d.resolved_by.username }}</small>{% endif %}
+</div></div></div>
+{% if user.is_admin_role and d.status == 'open' %}<div class="col-lg-4"><div class="card"><div class="card-body"><h2 class="h6">Resolve dispute</h2>
+  <form method="post" action="{% url 'disputes:resolve' d.pk %}" novalidate>{% csrf_token %}{% for f in form %}<div class="mb-2"><label class="form-label">{{ f.label }}</label>{{ f }}</div>{% endfor %}<button class="btn btn-tl" type="submit">Submit decision</button></form>
+</div></div></div>{% endif %}
+</div>{% endblock %}

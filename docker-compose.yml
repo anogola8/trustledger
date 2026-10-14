@@ -1,0 +1,28 @@
+# Local development: web + PostgreSQL + Redis + Celery worker. Run: docker compose up --build
+services:
+  db:
+    image: postgres:16-alpine
+    environment: { POSTGRES_DB: trustledger, POSTGRES_USER: trustledger, POSTGRES_PASSWORD: trustledger }
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck: { test: ["CMD-SHELL", "pg_isready -U trustledger"], interval: 5s, retries: 10 }
+  redis:
+    image: redis:7-alpine
+  web:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://trustledger:trustledger@db:5432/trustledger
+      CELERY_BROKER_URL: redis://redis:6379/0
+    ports: ["8000:8000"]
+    depends_on: { db: { condition: service_healthy }, redis: { condition: service_started } }
+    volumes: [media:/app/media, private:/app/private]
+  worker:
+    build: .
+    command: celery -A config worker -l info
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://trustledger:trustledger@db:5432/trustledger
+      CELERY_BROKER_URL: redis://redis:6379/0
+    depends_on: [web, redis]
+    volumes: [media:/app/media, private:/app/private]
+volumes: { pgdata: {}, media: {}, private: {} }

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% block title %}{{ w.full_name }}{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3"><div class="card-body d-flex flex-wrap gap-3 align-items-center">
+      {% if w.photo %}<img src="{{ w.photo.url }}" width="96" height="96" class="rounded-circle" style="object-fit:cover" alt="Photo of {{ w.full_name }}">{% endif %}
+      <div class="flex-grow-1"><h1 class="h3 mb-0">{{ w.full_name }}</h1><div class="text-muted">{{ w.headline }}</div><div class="small">{{ w.location }}</div></div>
+      {% if score %}<div class="text-center"><div class="score-ring mx-auto" aria-label="Trust score">{{ score.value|floatformat:0 }}</div><div class="small text-muted mt-1">Trust score</div></div>{% endif %}
+    </div></div>
+    {% if w.bio %}<div class="card mb-3"><div class="card-body"><h2 class="h5">About</h2><p class="mb-0">{{ w.bio|linebreaksbr }}</p></div></div>{% endif %}
+    <div class="card mb-3"><div class="card-body"><h2 class="h5">Work experience</h2>{% include 'workers/_timeline_items.html' %}</div></div>
+    {% if skills %}<div class="card mb-3"><div class="card-body"><h2 class="h5">Skills <span class="badge badge-declared">self-declared</span></h2>{% for s in skills %}<span class="badge bg-light text-dark border me-1">{{ s.name }}</span>{% endfor %}</div></div>{% endif %}
+  </div>
+  <div class="col-lg-4">
+    <div class="card mb-3 text-center"><div class="card-body"><img src="{% url 'workers:qr' w.slug %}" width="180" height="180" alt="QR code for this profile"><p class="small text-muted mb-0">Scan to open this profile</p></div></div>
+    {% if badges %}<div class="card mb-3"><div class="card-body"><h2 class="h6">Badges</h2>{% for b in badges %}<div class="mb-2"><span class="badge bg-warning text-dark">{{ b.info.label }}</span><div class="small text-muted">{{ b.info.description }}</div></div>{% endfor %}</div></div>{% endif %}
+    <div class="card"><div class="card-body small"><strong>How to read this page.</strong> Items marked <span class="badge badge-tier">Verified</span> were digitally signed by an approved employer after the worker confirmed them. Self-declared items are the worker's own statements and are not verified.</div></div>
+  </div>
+</div>
+{% endblock %}

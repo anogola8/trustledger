@@ -1,0 +1,11 @@
+{% comment %}
+Reusable avatar component.
+
+Usage:
+  {% include "partials/_avatar.html" with person=worker size=72 %}
+  {% include "partials/_avatar.html" with person=worker size=48 %}
+
+Renders: photo if present, else initials with a deterministic gradient.
+{% endcomment %}
+{% load avatar_tags %}
+{% avatar person size %}

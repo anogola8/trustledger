@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% load avatar_tags %}{% block title %}Users{% endblock %}
+{% block content %}<h1 class="h3 mb-3">User management</h1>
+<form class="row g-2 mb-3" method="get"><div class="col-auto"><input class="form-control" name="q" value="{{ q }}" placeholder="Search username or email" aria-label="Search"></div>
+<div class="col-auto"><select name="role" class="form-select" aria-label="Role"><option value="">All roles</option>{% for r in roles %}<option value="{{ r }}" {% if r == role %}selected{% endif %}>{{ r|title }}</option>{% endfor %}</select></div><div class="col-auto"><button class="btn btn-outline-tl">Filter</button></div></form>
+<div class="card"><div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th>User</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th></th></tr></thead><tbody>
+{% for u in page %}<tr><td>{{ u.username }}</td><td><div class="d-flex align-items-center gap-2">{% avatar u 28 %}{{ u.email }}</td><td>{{ u.role }}</td><td>{{ u.date_joined|date:"d M Y" }}</td><td>{% if u.is_active %}Active{% else %}<span class="text-danger">Deactivated</span>{% endif %}</td>
+<td><form method="post" action="{% url 'dashboard:toggle_user' u.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary" type="submit">{% if u.is_active %}Deactivate{% else %}Activate{% endif %}</button></form></td></tr>{% endfor %}</tbody></table></div></div>
+{% include 'dashboard/_pager.html' %}{% endblock %}

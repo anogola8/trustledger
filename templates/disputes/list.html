@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block title %}Disputes{% endblock %}
+{% block content %}<h1 class="h3 mb-3">Dispute portal</h1>
+<div class="card"><div class="table-responsive"><table class="table mb-0"><thead><tr><th>#</th><th>Attestation</th><th>Worker</th><th>Status</th><th>Opened</th><th></th></tr></thead><tbody>
+{% for d in items %}<tr><td>{{ d.pk }}</td><td>{{ d.attestation.role_title }}</td><td>{{ d.attestation.worker.full_name }}</td><td>{{ d.get_status_display }}</td><td>{{ d.created_at|date:"d M Y" }}</td><td><a href="{% url 'disputes:detail' d.pk %}">Open</a></td></tr>
+{% empty %}<tr><td colspan="6" class="p-4 text-muted">No disputes. To raise one, open an active attestation and choose "Raise a dispute".</td></tr>{% endfor %}</tbody></table></div></div>{% endblock %}

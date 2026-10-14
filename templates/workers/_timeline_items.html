@@ -1,0 +1,12 @@
+<div class="timeline">
+{% for i in items %}
+  <div class="timeline-item {{ i.kind }}">
+    <div class="d-flex flex-wrap justify-content-between"><strong>{{ i.title }}</strong>
+      {% if i.kind == 'verified' %}<span class="badge badge-tier">Verified &middot; signed</span>{% else %}<span class="badge badge-declared">Self-declared</span>{% endif %}</div>
+    <div>{{ i.org }}</div>
+    <div class="small text-muted">{{ i.start|date:"M Y" }} - {% if i.end %}{{ i.end|date:"M Y" }}{% else %}present{% endif %}</div>
+    {% if i.description %}<p class="mb-1 small">{{ i.description }}</p>{% endif %}
+    {% if i.code %}<a class="small" href="{% url 'verification:result' i.code %}">Verify {{ i.code }}</a>{% endif %}
+  </div>
+{% empty %}<p class="text-muted">No experience to show yet.</p>{% endfor %}
+</div>

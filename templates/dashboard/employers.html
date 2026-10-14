@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}Employers{% endblock %}
+{% block content %}<h1 class="h3 mb-3">Employer approvals</h1>
+<div class="card"><div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th>Organisation</th><th>Type</th><th>Registration no.</th><th>Status</th><th>Key</th><th></th></tr></thead><tbody>
+{% for e in items %}<tr><td>{{ e.organisation_name }}<div class="small text-muted">{{ e.user.email }}</div></td><td>{{ e.get_org_type_display }}</td><td>{{ e.registration_number|default:"-" }}</td><td>{{ e.get_status_display }}</td><td><code class="small">{{ e.key_id|default:"-" }}</code></td>
+<td class="text-nowrap">{% if e.status != 'approved' %}<form class="d-inline" method="post" action="{% url 'dashboard:employer_action' e.pk 'approve' %}">{% csrf_token %}<button class="btn btn-sm btn-tl" type="submit">Approve</button></form>{% endif %}
+{% if e.status == 'approved' %}<form class="d-inline" method="post" action="{% url 'dashboard:employer_action' e.pk 'suspend' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger" type="submit">Suspend</button></form>{% endif %}</td></tr>{% endfor %}</tbody></table></div></div>{% endblock %}

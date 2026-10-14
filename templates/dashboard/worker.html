@@ -1,0 +1,115 @@
+{% extends 'base.html' %}{% load avatar_tags %}{% load static %}
+{% block title %}My Career{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <div class="d-flex align-items-center gap-3 mb-2">{% avatar w 56 %}<h1 class="h3 mb-0">Welcome back, {{ w.full_name|default:user.email }}</h1></div>
+    <p class="text-muted small mb-0">Your portable, verifiable work history</p>
+  </div>
+  <a href="{% url 'workers:portfolio' %}" class="btn btn-primary">📁 View Portfolio</a>
+</div>
+
+{% if pending %}
+<div class="alert alert-warning shadow-sm border-0">
+  <strong>⚠️ {{ pending|length }} attestation{{ pending|length|pluralize }} awaiting your confirmation</strong>
+  <div class="mt-2">
+    {% for a in pending %}
+      <a href="{% url 'attestations:detail' a.pk %}" class="btn btn-sm btn-outline-dark me-1 mb-1">
+        {{ a.employer.organisation_name }} — {{ a.role_title }}
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="display-5 fw-bold text-primary">
+          {% if latest %}{{ latest.value|floatformat:0 }}{% else %}—{% endif %}
+        </div>
+        <div class="text-muted small">Trust Score</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="display-5 fw-bold text-success">{{ active_count|default:0 }}</div>
+        <div class="text-muted small">Verified Jobs</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="display-5 fw-bold text-info">{{ verifications_total|default:0 }}</div>
+        <div class="text-muted small">Times Verified</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="card border-0 shadow-sm h-100 text-center">
+      <div class="card-body">
+        <div class="display-5 fw-bold text-warning">{{ open_disputes|default:0 }}</div>
+        <div class="text-muted small">Open Disputes</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">📈 Trust Score Trend</h5>
+        {% if trend.values %}
+          <canvas data-chart="trend" data-type="line" data-label="Score" height="100"></canvas>
+        {% else %}
+          <p class="text-muted small mb-0">Your score chart appears after your first signed attestation.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h5 class="mb-3">🏆 Badges</h5>
+        {% for b in badges %}
+          <div class="mb-2">
+            <span class="badge bg-warning text-dark">{{ b.info.label }}</span>
+            <small class="text-muted d-block">{{ b.info.description }}</small>
+          </div>
+        {% empty %}
+          <p class="text-muted small mb-0">Earn badges by collecting verified work.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <div class="col-12">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="mb-0">📅 Recent Verified Work</h5>
+          <a href="{% url 'workers:timeline' %}" class="btn btn-sm btn-outline-primary">Full timeline</a>
+        </div>
+        {% for a in active_attestations|slice:":5" %}
+          <div class="d-flex align-items-start border-bottom py-2">
+            <div class="flex-grow-1">
+              <strong>{{ a.role_title }}</strong>
+              <div class="small text-muted">{{ a.employer.organisation_name }} · {{ a.start_date|date:"M Y" }}–{% if a.end_date %}{{ a.end_date|date:"M Y" }}{% else %}Present{% endif %}</div>
+            </div>
+            <span class="badge bg-success">Verified</span>
+          </div>
+        {% empty %}
+          <p class="text-muted small mb-0">No verified work yet. Ask an employer to attest your work.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ trend|json_script:"trend" }}{{ daily|json_script:"daily" }}
+{% endblock %}
+{% block scripts %}{% load static %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="{% static 'js/charts.js' %}"></script>{% endblock %}

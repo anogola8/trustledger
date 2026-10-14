@@ -1,0 +1,23 @@
+{% extends 'base.html' %}{% block title %}Verification result{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+  <div class="verified-banner v-{{ res.status }} mb-3">
+    <h1 class="h3 mb-1">{% if res.status == 'verified' %}VERIFIED{% elif res.status == 'revoked' %}REVOKED{% elif res.status == 'disputed' %}UNDER DISPUTE{% elif res.status == 'not_found' %}NOT FOUND{% else %}INVALID{% endif %}</h1>
+    <div>{% if res.ok %}This record was digitally signed by the issuer and has not been altered.{% else %}{{ res.reason }}{% endif %}</div>
+  </div>
+  {% if res.attestation and res.status != 'not_found' %}{% with a=res.attestation %}
+  <div class="card"><div class="card-body">
+    <dl class="row mb-0">
+      <dt class="col-sm-4">Worker</dt><dd class="col-sm-8"><a href="{% url 'workers:public' a.worker.slug %}">{{ a.worker.full_name }}</a></dd>
+      <dt class="col-sm-4">Role</dt><dd class="col-sm-8">{{ a.role_title }}</dd>
+      <dt class="col-sm-4">Issued by</dt><dd class="col-sm-8">{{ a.employer.organisation_name }}</dd>
+      <dt class="col-sm-4">Period</dt><dd class="col-sm-8">{{ a.start_date }} to {% if a.end_date %}{{ a.end_date }}{% else %}present{% endif %}</dd>
+      <dt class="col-sm-4">Signed</dt><dd class="col-sm-8">{{ a.confirmed_at }} &middot; Ed25519 &middot; key {{ a.signature.key_id }}</dd>
+      <dt class="col-sm-4">Code</dt><dd class="col-sm-8"><code>{{ a.verification_code }}</code></dd>
+    </dl>
+    <div class="mt-3"><a class="btn btn-outline-tl btn-sm" href="{% url 'verification:report' a.verification_code %}">Download report (PDF)</a></div>
+  </div></div>
+  <p class="small text-muted mt-3">A digital signature proves who issued the statement and that it has not been altered. It does not by itself prove that the statement is true.</p>
+  {% endwith %}{% endif %}
+</div></div>
+{% endblock %}

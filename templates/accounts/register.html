@@ -1,0 +1,81 @@
+{% extends 'base.html' %}{% load static %}{% load avatar_tags %}
+{% block title %}{{ title|default:"Sign up" }}{% endblock %}
+{% block content %}
+<div class="tl-auth-wrap">
+
+  <!-- LEFT: Brand panel -->
+  <div class="tl-auth-left">
+    <div class="tl-auth-brand">
+      <span class="brand-mark">Trust</span>Ledger
+    </div>
+
+    <div class="tl-auth-hero">
+      <h2>Own your reputation.<br><span>Prove</span> your work.</h2>
+      <p>Every attestation is digitally signed. Every verification is instant. Every worker owns their story.</p>
+
+      <div class="tl-auth-stats">
+        <div>
+          <div class="num">500+</div>
+          <div class="lbl">Workers</div>
+        </div>
+        <div>
+          <div class="num">900+</div>
+          <div class="lbl">Attestations</div>
+        </div>
+        <div>
+          <div class="num">100%</div>
+          <div class="lbl">Cryptographic</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-auth-avatars">
+      <div class="stack">
+        {% avatar "Amina Wanjiru" 40 %}
+        {% avatar "Brian Otieno" 40 %}
+        {% avatar "Grace Mwikali" 40 %}
+        {% avatar "Faith Njeri" 40 %}
+        {% avatar "Moses Kimani" 40 %}
+      </div>
+      <div class="caption">Join the trust economy</div>
+    </div>
+  </div>
+
+  <!-- RIGHT: Register form -->
+  <div class="tl-auth-right">
+    <div class="tl-auth-card">
+      <h1>{{ title|default:"Create an account" }}</h1>
+      {% if intro %}<p class="subtitle">{{ intro }}</p>{% endif %}
+
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger small mb-3">{{ form.non_field_errors.0 }}</div>
+      {% endif %}
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}
+              <div class="form-text small">{{ field.help_text|safe }}</div>
+            {% endif %}
+            {% if field.errors %}
+              <div class="text-danger small mt-1">{{ field.errors.0 }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary w-100">Create account</button>
+      </form>
+
+      <div class="tl-auth-footer">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}">Log in</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

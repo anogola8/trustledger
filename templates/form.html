@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-8 col-lg-6">
+  <div class="card"><div class="card-body p-4">
+    <h1 class="h4 mb-2">{{ title }}</h1>
+    {% if intro %}<p class="text-muted">{{ intro }}</p>{% endif %}
+    <form method="post" {% if multipart %}enctype="multipart/form-data"{% endif %} novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+      {% for f in form %}
+        <div class="mb-3">
+          <label class="form-label" for="{{ f.id_for_label }}">{{ f.label }}</label>
+          {{ f }}
+          {% if f.help_text %}<div class="form-text">{{ f.help_text }}</div>{% endif %}
+          {% for e in f.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+        </div>
+      {% endfor %}
+      <button class="btn btn-tl" type="submit">{{ submit|default:'Save' }}</button>
+      {% if back %}<a class="btn btn-link" href="{% url back %}">Cancel</a>{% endif %}
+    </form>
+  </div></div>
+</div></div>
+{% endblock %}

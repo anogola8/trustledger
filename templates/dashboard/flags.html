@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block title %}Fraud flags{% endblock %}
+{% block content %}<h1 class="h3 mb-3">Fraud monitoring</h1>
+<div class="mb-3">{% for s in statuses %}<a class="btn btn-sm {% if s == status %}btn-tl{% else %}btn-outline-tl{% endif %}" href="?status={{ s }}">{{ s|title }}</a> {% endfor %}</div>
+<div class="card"><div class="table-responsive"><table class="table mb-0 align-middle"><thead><tr><th>Rule</th><th>Severity</th><th>Reason</th><th>Subject</th><th></th></tr></thead><tbody>
+{% for f in items %}<tr><td>{{ f.rule_code }}</td><td>{{ f.severity }}</td><td>{{ f.reason }}</td><td>{% if f.attestation %}<a href="{% url 'attestations:detail' f.attestation.pk %}">{{ f.attestation.worker.full_name }}</a>{% else %}{{ f.employer.organisation_name }}{% endif %}</td>
+<td class="text-nowrap">{% if f.status == 'open' %}<form class="d-inline" method="post" action="{% url 'dashboard:flag_action' f.pk 'cleared' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-secondary">Clear</button></form>
+<form class="d-inline" method="post" action="{% url 'dashboard:flag_action' f.pk 'confirmed' %}">{% csrf_token %}<button class="btn btn-sm btn-outline-danger">Confirm</button></form>{% else %}{{ f.get_status_display }}{% endif %}</td></tr>
+{% empty %}<tr><td colspan="5" class="p-4 text-muted">No flags in this view.</td></tr>{% endfor %}</tbody></table></div></div>{% endblock %}

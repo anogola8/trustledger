@@ -1,0 +1,167 @@
+{% extends 'base.html' %}{% load static %}{% load avatar_tags %}
+{% block title %}{{ worker.full_name }} — Portfolio{% endblock %}
+{% block content %}
+
+<!-- ============ HERO ============ -->
+<div class="tl-portfolio-hero mb-4">
+  <div class="row align-items-center position-relative" style="z-index: 2;">
+    <div class="col-lg-5 text-center text-lg-start">
+      <div class="d-flex flex-column flex-lg-row align-items-center gap-3">
+        <div class="p-2 rounded-circle" style="background: rgba(255,255,255,0.15);">
+          {% avatar worker 96 %}
+        </div>
+        <div>
+          <h1 class="h2 mb-1">{{ worker.full_name }}</h1>
+          {% if worker.headline %}<p class="mb-1 opacity-75">{{ worker.headline }}</p>{% endif %}
+          {% if worker.location %}<p class="mb-0 small opacity-75">📍 {{ worker.location }}</p>{% endif %}
+          <span class="badge bg-light text-dark mt-2">Available for work</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3 text-center my-3 my-lg-0">
+      <div class="tl-trust-ring" style="--score-pct: {% if latest_score %}{{ latest_score.value|floatformat:0 }}{% else %}0{% endif %}%;">
+        <span class="tl-trust-ring-value">{% if latest_score %}{{ latest_score.value|floatformat:0 }}{% else %}—{% endif %}</span>
+      </div>
+      <div class="small opacity-75 mt-2">Trust Score</div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="tl-info-card">
+        <h6 class="text-uppercase small mb-2 opacity-75">Share this profile</h6>
+        <p class="small mb-2 text-break"><code>{{ public_url }}</code></p>
+        {% if is_public %}
+          <a href="{% url 'workers:qr' worker.slug %}" class="btn btn-sm btn-light">QR Code</a>
+        {% else %}
+          <a class="btn btn-sm btn-light" href="{% url 'workers:qr' worker.slug %}?download=1">Download QR</a>
+          <a class="btn btn-sm btn-outline-light" href="{% url 'workers:cv' %}">Digital CV</a>
+          <a class="btn btn-sm btn-outline-light" href="{% url 'workers:manage' %}">Edit</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ BADGES ============ -->
+{% if badges %}
+<div class="tl-section-card mb-4">
+  <h5 class="mb-3">🏆 Achievements</h5>
+  <div class="d-flex flex-wrap gap-2">
+    {% for b in badges %}
+      <span class="badge bg-warning text-dark p-2 fs-6" title="{{ b.info.description }}">
+        🏆 {{ b.info.label }}
+      </span>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ============ VERIFIED WORK ============ -->
+<div class="tl-section-card mb-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">✅ Verified Work</h5>
+    <span class="text-muted small">{{ active_atts|length }} record{{ active_atts|length|pluralize }}</span>
+  </div>
+  {% if active_atts %}
+    <div class="row g-3">
+      {% for a in active_atts %}
+        <div class="col-md-6">
+          <div class="card border h-100 tl-work-card" style="border-color: #e2e8f0 !important;">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                  <h6 class="mb-0">{{ a.role_title }}</h6>
+                  <div class="text-muted small">{{ a.employer.organisation_name }}</div>
+                </div>
+                <span class="tl-verified-badge">✓ VERIFIED</span>
+              </div>
+              <div class="small text-muted mb-2">
+                📅 {{ a.start_date|date:"M Y" }} — {% if a.end_date %}{{ a.end_date|date:"M Y" }}{% else %}Present{% endif %}
+              </div>
+              {% if a.description %}<p class="small mb-2">{{ a.description|truncatewords:20 }}</p>{% endif %}
+              <div class="mt-2">
+                {% if is_public %}
+                  <a href="{% url 'verification:result' a.verification_code %}" class="btn btn-sm btn-outline-primary" target="_blank">🔐 Verify signature</a>
+                {% else %}
+                  <a href="{% url 'attestations:detail' a.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                  <span class="small text-muted ms-2">Code: <code>{{ a.verification_code }}</code></span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-info mb-0">
+      No verified work yet.
+      {% if not is_public %}<a href="{% url 'attestations:list' %}">Request an attestation →</a>{% endif %}
+    </div>
+  {% endif %}
+</div>
+
+<!-- ============ PENDING ============ -->
+{% if not is_public and pending_atts %}
+<div class="tl-section-card mb-4">
+  <h5>⏳ Awaiting Your Confirmation</h5>
+  <div class="list-group">
+    {% for a in pending_atts %}
+      <a href="{% url 'attestations:detail' a.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+        <span><strong>{{ a.role_title }}</strong> from {{ a.employer.organisation_name }}</span>
+        <span class="badge bg-warning text-dark">Review</span>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ============ SKILLS ============ -->
+{% if skills_by_cat %}
+<div class="tl-section-card mb-4">
+  <h5 class="mb-3">🛠️ Skills</h5>
+  <div class="d-flex flex-wrap gap-2">
+    {% for category, skills in skills_by_cat.items %}
+      {% for skill in skills %}
+        <span class="tl-skill-chip">{{ skill.name }}{% if skill.get_level_display %} · <small class="text-muted">{{ skill.get_level_display }}</small>{% endif %}</span>
+      {% endfor %}
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ============ CERTIFICATES ============ -->
+{% if certificates %}
+<div class="tl-section-card mb-4">
+  <h5 class="mb-3">🎓 Certificates</h5>
+  <div class="row g-3">
+    {% for c in certificates %}
+      <div class="col-md-4">
+        <div class="card border h-100" style="border-color: #e2e8f0 !important;">
+          <div class="card-body">
+            <h6 class="mb-1">{{ c.title }}</h6>
+            {% if c.issuing_body %}<div class="small text-muted mb-2">{{ c.issuing_body }}</div>{% endif %}
+            {% if c.year %}<div class="small text-muted">Year: {{ c.year }}</div>{% endif %}
+            {% if not is_public %}
+              <a href="{% url 'workers:certificate_file' c.pk %}" class="btn btn-sm btn-outline-primary mt-2">View file</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- ============ CTA ============ -->
+<div class="text-center py-4">
+  {% if is_public %}
+    <p class="text-muted small mb-2">All records above are cryptographically signed and verifiable.</p>
+    <a href="{% url 'verification:home' %}" class="btn btn-primary">Verify another code</a>
+  {% else %}
+    <p class="text-muted small mb-2">This is how your public portfolio looks to employers.</p>
+    <a href="{{ public_url }}" class="btn btn-primary" target="_blank">👁️ View public version</a>
+    <a href="{% url 'workers:manage' %}" class="btn btn-outline-primary ms-2">⚙️ Edit profile</a>
+  {% endif %}
+</div>
+
+{% endblock %}

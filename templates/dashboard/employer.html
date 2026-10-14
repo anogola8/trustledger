@@ -1,0 +1,80 @@
+{% extends 'base.html' %}{% load avatar_tags %}{% load static %}
+{% block title %}Hiring Console{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <div class="d-flex align-items-center gap-3 mb-2">{% avatar e 56 %}<h1 class="h3 mb-0">{{ e.organisation_name|default:"Hiring Console" }}</h1></div>
+    <p class="text-muted small mb-0">
+      {% if e.can_issue %}<span class="badge bg-success">Approved issuer</span>
+      {% else %}<span class="badge bg-warning text-dark">Pending approval</span>{% endif %}
+    </p>
+  </div>
+  <div>
+    <a href="{% url 'attestations:issue' %}" class="btn btn-primary">+ Issue Attestation</a>
+    <a href="{% url 'employers:verify_worker' %}" class="btn btn-outline-primary">🔍 Verify Worker</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm text-center"><div class="card-body">
+    <div class="display-5 fw-bold">{{ total|default:0 }}</div>
+    <div class="text-muted small">Attestations Issued</div>
+  </div></div></div>
+  <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm text-center"><div class="card-body">
+    <div class="display-5 fw-bold text-success">{{ by_status.active|default:0 }}</div>
+    <div class="text-muted small">Active</div>
+  </div></div></div>
+  <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm text-center"><div class="card-body">
+    <div class="display-5 fw-bold text-warning">{{ by_status.pending|default:0 }}</div>
+    <div class="text-muted small">Awaiting Worker</div>
+  </div></div></div>
+  <div class="col-6 col-lg-3"><div class="card border-0 shadow-sm text-center"><div class="card-body">
+    <div class="display-5 fw-bold text-info">{{ verifications|default:0 }}</div>
+    <div class="text-muted small">Verifications Run</div>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">📋 Recent Attestations</h5>
+        <div class="table-responsive">
+          <table class="table table-sm mb-0">
+            <thead><tr><th>Worker</th><th>Role</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              {% for a in recent %}
+                <tr>
+                  <td>{{ a.worker.full_name }}</td>
+                  <td>{{ a.role_title }}</td>
+                  <td><span class="badge bg-secondary">{{ a.get_status_display }}</span></td>
+                  <td><a href="{% url 'attestations:detail' a.pk %}" class="btn btn-sm btn-outline-primary">Open</a></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4" class="text-muted text-center py-3">
+                  No attestations yet. <a href="{% url 'attestations:issue' %}">Issue your first</a>
+                </td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">📊 Attestations by Status</h5>
+        {% if chart.values %}
+          <canvas data-chart="status" data-type="doughnut" height="150"></canvas>
+        {% else %}
+          <p class="text-muted small mb-0">No data yet.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ chart|json_script:"status" }}{{ daily|json_script:"daily" }}
+{% endblock %}
+{% block scripts %}{% load static %}<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script><script src="{% static 'js/charts.js' %}"></script>{% endblock %}

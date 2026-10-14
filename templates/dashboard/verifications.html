@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block title %}Verification monitoring{% endblock %}
+{% block content %}<h1 class="h3 mb-3">Verification monitoring</h1>
+<form class="mb-3" method="get"><select name="result" class="form-select w-auto d-inline" aria-label="Result"><option value="">All results</option>{% for r in results %}<option value="{{ r }}" {% if r == result %}selected{% endif %}>{{ r }}</option>{% endfor %}</select> <button class="btn btn-outline-tl">Filter</button></form>
+<div class="card"><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>Time</th><th>Code</th><th>Worker</th><th>Method</th><th>Result</th></tr></thead><tbody>
+{% for v in page %}<tr><td>{{ v.created_at|date:"d M H:i" }}</td><td><code>{{ v.code_queried }}</code></td><td>{{ v.attestation.worker.full_name|default:"-" }}</td><td>{{ v.method }}</td><td>{{ v.result }}</td></tr>{% endfor %}</tbody></table></div></div>
+{% include 'dashboard/_pager.html' %}{% endblock %}

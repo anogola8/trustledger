@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% load avatar_tags %}{% block title %}Attestation{% endblock %}
+{% block content %}
+<div class="row g-3"><div class="col-lg-8">
+  <div class="card"><div class="card-body">
+    <div class="d-flex justify-content-between"><div class="d-flex align-items-center gap-2 mb-2">{% avatar att.worker 40 %}<h1 class="h4 mb-0">{{ att.role_title }}</h1></div><span class="badge bg-secondary align-self-start">{{ att.get_status_display }}</span></div>
+    <dl class="row mb-0">
+      <dt class="col-sm-4">Worker</dt><dd class="col-sm-8">{{ att.worker.full_name }}</dd>
+      <dt class="col-sm-4">Issued by</dt><dd class="col-sm-8">{{ att.employer.organisation_name }}</dd>
+      <dt class="col-sm-4">Period</dt><dd class="col-sm-8">{{ att.start_date }} to {% if att.end_date %}{{ att.end_date }}{% else %}present{% endif %}</dd>
+      <dt class="col-sm-4">Description</dt><dd class="col-sm-8">{{ att.description|default:"-"|linebreaksbr }}</dd>
+      {% if att.verification_code %}<dt class="col-sm-4">Verification code</dt><dd class="col-sm-8"><code>{{ att.verification_code }}</code> &middot; <a href="{% url 'verification:result' att.verification_code %}">open public page</a></dd>
+      <dt class="col-sm-4">Payload hash</dt><dd class="col-sm-8"><code class="small">{{ att.payload_hash }}</code></dd>{% endif %}
+      {% if att.status == 'revoked' %}<dt class="col-sm-4">Revoked</dt><dd class="col-sm-8">{{ att.revoked_reason }}</dd>{% endif %}
+      {% if rating %}<dt class="col-sm-4">Employer rating</dt><dd class="col-sm-8">{{ rating.score }}/5 (punctuality {{ rating.punctuality }}, quality {{ rating.quality }}, honesty {{ rating.honesty }})</dd>{% endif %}
+    </dl>
+  </div></div>
+</div>
+<div class="col-lg-4">
+  <div class="card"><div class="card-body d-grid gap-2">
+    {% if is_owner_worker and att.status == 'pending' %}
+      <form method="post" action="{% url 'attestations:confirm' att.pk %}">{% csrf_token %}<button class="btn btn-tl w-100" type="submit">Confirm and sign</button></form>
+      <form method="post" action="{% url 'attestations:reject' att.pk %}">{% csrf_token %}<button class="btn btn-outline-danger w-100" type="submit">Reject</button></form>
+    {% endif %}
+    {% if att.status == 'active' %}
+      <a class="btn btn-outline-tl" href="{% url 'verification:report' att.verification_code %}">Verification report (PDF)</a>
+      <a class="btn btn-outline-tl" href="{% url 'verification:qr' att.verification_code %}?download=1">Download QR code</a>
+      {% if is_owner_worker or is_owner_employer %}<a class="btn btn-outline-danger" href="{% url 'disputes:new' att.pk %}">Raise a dispute</a>{% endif %}
+    {% endif %}
+    {% if is_owner_employer and att.status == 'active' %}<a class="btn btn-outline-tl" href="{% url 'attestations:rate' att.pk %}">Rate worker</a>{% endif %}
+    {% if att.status == 'active' or att.status == 'disputed' %}{% if is_owner_employer or user.is_admin_role %}
+      <form method="post" action="{% url 'attestations:revoke' att.pk %}">{% csrf_token %}<textarea name="reason" class="form-control mb-2" rows="2" placeholder="Reason for revocation" required></textarea><button class="btn btn-danger w-100" type="submit">Revoke</button></form>
+    {% endif %}{% endif %}
+  </div></div>
+</div></div>
+{% endblock %}

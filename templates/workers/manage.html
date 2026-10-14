@@ -1,0 +1,37 @@
+{% extends 'base.html' %}{% block title %}My profile{% endblock %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+  <h1 class="h3 mb-0">My professional profile</h1>
+  <div class="mt-2 mt-md-0">
+    <a class="btn btn-outline-tl btn-sm" href="{% url 'workers:edit' %}">Edit profile</a>
+    <a class="btn btn-outline-tl btn-sm" href="{% url 'workers:cv' %}">Download CV (PDF)</a>
+    <a class="btn btn-tl btn-sm" href="{% url 'workers:qr' worker.slug %}?download=1" ><span class="visually-hidden">Download </span>QR code</a>
+    <a class="btn btn-outline-tl btn-sm" href="{% url 'workers:public' worker.slug %}">View public page</a>
+  </div>
+</div>
+<div class="card mb-3"><div class="card-body d-flex flex-wrap align-items-center gap-3">
+  {% if worker.photo %}<img src="{{ worker.photo.url }}" class="rounded-circle" width="80" height="80" alt="Profile photo" style="object-fit:cover">{% endif %}
+  <div><h2 class="h5 mb-0">{{ worker.full_name }}</h2><div class="text-muted">{{ worker.headline|default:"Add a headline in Edit profile" }}</div>
+  <div class="small mt-1">Share link: <code>{{ public_url }}</code> &middot; Profile code: <code>{{ worker.slug }}</code></div></div>
+</div></div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between"><h2 class="h5">Skills portfolio</h2><a class="btn btn-sm btn-tl" href="{% url 'workers:add_skill' %}">Add</a></div>
+    {% for s in skills %}<div class="d-flex justify-content-between border-bottom py-2"><span>{{ s.name }} <span class="badge badge-declared">{{ s.get_level_display }}{% if s.years %}, {{ s.years }} yrs{% endif %}</span></span>
+      <form method="post" action="{% url 'workers:delete_skill' s.pk %}">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" type="submit">Remove</button></form></div>
+    {% empty %}<p class="text-muted mb-0">No skills yet. Skills are self-declared and shown as such.</p>{% endfor %}
+  </div></div></div>
+  <div class="col-lg-6"><div class="card h-100"><div class="card-body">
+    <div class="d-flex justify-content-between"><h2 class="h5">Certificates</h2><a class="btn btn-sm btn-tl" href="{% url 'workers:add_certificate' %}">Upload</a></div>
+    {% for c in certs %}<div class="d-flex justify-content-between border-bottom py-2"><span><a href="{% url 'workers:certificate_file' c.pk %}" target="_blank" rel="noopener">{{ c.title }}</a> <small class="text-muted">{{ c.issuing_body }}</small></span>
+      <form method="post" action="{% url 'workers:delete_certificate' c.pk %}">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" type="submit">Remove</button></form></div>
+    {% empty %}<p class="text-muted mb-0">No certificates uploaded. Files are private to you and administrators.</p>{% endfor %}
+  </div></div></div>
+  <div class="col-12"><div class="card"><div class="card-body">
+    <div class="d-flex justify-content-between"><h2 class="h5">Self-declared experience</h2><a class="btn btn-sm btn-tl" href="{% url 'workers:add_experience' %}">Add</a></div>
+    {% for e in experiences %}<div class="d-flex justify-content-between border-bottom py-2"><span><strong>{{ e.role_title }}</strong> at {{ e.employer_name }} <small class="text-muted">{{ e.start_date|date:"M Y" }} - {% if e.end_date %}{{ e.end_date|date:"M Y" }}{% else %}present{% endif %}</small></span>
+      <form method="post" action="{% url 'workers:delete_experience' e.pk %}">{% csrf_token %}<button class="btn btn-sm btn-link text-danger" type="submit">Remove</button></form></div>
+    {% empty %}<p class="text-muted mb-0">Nothing yet. Ask employers to issue signed attestations for verified entries.</p>{% endfor %}
+  </div></div></div>
+</div>
+{% endblock %}

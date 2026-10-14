@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block title %}Audit log{% endblock %}
+{% block content %}<div class="d-flex flex-wrap justify-content-between mb-3"><h1 class="h3">Audit log</h1>
+<div><a class="btn btn-sm btn-tl" href="?check=1">Verify hash chain</a></div></div>
+{% if chain %}{% if chain.0 %}<div class="alert alert-success">Hash chain intact: no entry has been altered, removed or re-ordered.</div>{% else %}<div class="alert alert-danger">Hash chain BROKEN at entry #{{ chain.1 }}. Investigate immediately.</div>{% endif %}{% endif %}
+<form class="mb-3" method="get"><input class="form-control w-auto d-inline" name="action" value="{{ action }}" placeholder="Filter by action" aria-label="Filter by action"> <button class="btn btn-outline-tl">Filter</button></form>
+<div class="card"><div class="table-responsive"><table class="table table-sm mb-0"><thead><tr><th>#</th><th>Time</th><th>Actor</th><th>Action</th><th>Entity</th><th>Hash</th></tr></thead><tbody>
+{% for e in page %}<tr><td>{{ e.pk }}</td><td>{{ e.created_at|date:"d M H:i" }}</td><td>{{ e.actor.username|default:"-" }}</td><td>{{ e.action }}</td><td>{{ e.entity_type }} {{ e.entity_id|truncatechars:12 }}</td><td><code class="small">{{ e.entry_hash|slice:":10" }}</code></td></tr>{% endfor %}</tbody></table></div></div>
+{% include 'dashboard/_pager.html' %}{% endblock %}

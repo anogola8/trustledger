@@ -1,0 +1,3 @@
+[bandit]
+exclude = ./.venv,./tests,./workers/management/commands/seed_big_demo.py
+skips = B311,B110,B112,B105,B324

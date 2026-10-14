@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load avatar_tags %}
+{% block content %}
+
+<section class="hero p-4 p-md-5 mb-4">
+  <div class="row align-items-center">
+    <div class="col-lg-7">
+      <h1 class="display-5 fw-bold">Your good work, <span style="color:#7fe0ea">verified</span> and portable.</h1>
+      <p class="lead">TrustLedger lets employers issue digitally signed work attestations that you own. Anyone can check them in seconds with a QR code, with no account needed.</p>
+      <a class="btn btn-tl btn-lg me-2" href="{% url 'accounts:register_worker' %}">I am a worker</a>
+      <a class="btn btn-outline-light btn-lg" href="{% url 'accounts:register_employer' %}">I am an employer</a>
+    </div>
+    <div class="col-lg-5 mt-4 mt-lg-0">
+      <div class="card text-dark"><div class="card-body">
+        <h2 class="h5">Verify a worker</h2>
+        <form method="post" action="{% url 'verification:home' %}">{% csrf_token %}
+          <div class="input-group">
+            <input class="form-control" name="code" placeholder="TL-XXXXX-XXXXX" aria-label="Verification code">
+            <button class="btn btn-tl" type="submit">Go</button>
+          </div>
+        </form>
+        <p class="small text-muted mt-2 mb-0">Or scan the worker's QR code with your phone camera.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+{% if stats %}
+<section class="py-4 text-center mb-4">
+  <div class="row">
+    <div class="col-md-4 mb-3 mb-md-0">
+      <div class="display-6 fw-bold text-primary">{{ stats.workers }}</div>
+      <div class="text-muted">Workers on platform</div>
+    </div>
+    <div class="col-md-4 mb-3 mb-md-0">
+      <div class="display-6 fw-bold text-success">{{ stats.active }}</div>
+      <div class="text-muted">Signed attestations</div>
+    </div>
+    <div class="col-md-4">
+      <div class="display-6 fw-bold text-info">{{ stats.attestations }}</div>
+      <div class="text-muted">Total records</div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if featured_workers %}
+<section class="py-5">
+  <div class="text-center mb-4">
+    <h2 class="h3 mb-2">Meet Verified Workers</h2>
+    <p class="text-muted">Real people with cryptographically signed work histories.</p>
+  </div>
+  <div class="row g-3">
+    {% for w in featured_workers %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card border-0 shadow-sm h-100 text-center">
+          <div class="card-body">
+            <div class="mb-2">{% avatar w 72 %}</div>
+            <h6 class="mb-0 small">{{ w.full_name }}</h6>
+            <div class="small text-muted mb-2">{{ w.headline|truncatechars:32 }}</div>
+            <div class="small">
+              <span class="badge bg-primary">{{ w.latest_score|floatformat:0 }} Trust</span>
+              <span class="badge bg-success">{{ w.active_count }} Verified</span>
+            </div>
+            <a href="{% url 'workers:portfolio_public' w.slug %}" class="btn btn-sm btn-outline-primary mt-2 w-100">View</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  <div class="text-center mt-4">
+    <a href="{% url 'workers:explore' %}" class="btn btn-primary">Browse all {{ stats.workers }} workers &rarr;</a>
+  </div>
+</section>
+{% endif %}
+
+{% if top_skills %}
+<section class="py-5 bg-light rounded">
+  <div class="text-center mb-3">
+    <h2 class="h4 mb-2">Browse by Skill</h2>
+    <p class="text-muted small mb-3">Click a skill to see workers who have it.</p>
+  </div>
+  <div class="d-flex flex-wrap gap-2 justify-content-center">
+    {% for s in top_skills %}
+      <a href="{% url 'workers:explore' %}?skill={{ s.name|urlencode }}" class="badge bg-white text-dark border p-3 text-decoration-none">
+        {{ s.name }} <span class="text-muted small">({{ s.n }})</span>
+      </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="row g-3 text-center my-4">
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h2 class="h5">Signed, not just typed</h2>
+    <p class="mb-0">Every attestation is signed with Ed25519, so any change is detected.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h2 class="h5">You stay in control</h2>
+    <p class="mb-0">Nothing is signed until the worker confirms, and disputes are reviewed by an administrator.</p>
+  </div></div></div>
+  <div class="col-md-4"><div class="card h-100"><div class="card-body">
+    <h2 class="h5">Honest labels</h2>
+    <p class="mb-0">Self-declared items are clearly marked. Only signed records count as verified.</p>
+  </div></div></div>
+</div>
+
+{% endblock %}

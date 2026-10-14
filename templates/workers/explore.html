@@ -1,0 +1,98 @@
+{% extends 'base.html' %}{% load avatar_tags %}{% load static %}
+{% block title %}Find Verified Workers{% endblock %}
+{% block content %}
+
+<div class="text-center mb-4">
+  <h1 class="h2 mb-2">Find Verified Workers</h1>
+  <p class="text-muted">Browse workers with cryptographically signed work histories.</p>
+</div>
+
+<form method="get" class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <div class="row g-2">
+      <div class="col-md-4"><input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Name, skill, or location..."></div>
+      <div class="col-md-2">
+        <select name="skill" class="form-select">
+          <option value="">All skills</option>
+          {% for s in all_skills %}<option value="{{ s }}" {% if s == skill %}selected{% endif %}>{{ s }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="location" class="form-select">
+          <option value="">All locations</option>
+          {% for l in all_locations %}<option value="{{ l }}" {% if l == location %}selected{% endif %}>{{ l }}</option>{% endfor %}
+        </select>
+      </div>
+      <div class="col-md-2">
+        <select name="min_trust" class="form-select">
+          <option value="">Any trust</option>
+          <option value="40" {% if min_trust == '40' %}selected{% endif %}>40+</option>
+          <option value="60" {% if min_trust == '60' %}selected{% endif %}>60+</option>
+          <option value="80" {% if min_trust == '80' %}selected{% endif %}>80+</option>
+        </select>
+      </div>
+      <div class="col-md-2"><button type="submit" class="btn btn-primary w-100">Search</button></div>
+    </div>
+    <div class="row g-2 mt-2">
+      <div class="col-md-3">
+        <select name="min_verified" class="form-select form-select-sm">
+          <option value="">Any verified jobs</option>
+          <option value="1" {% if min_verified == '1' %}selected{% endif %}>1+ verified</option>
+          <option value="3" {% if min_verified == '3' %}selected{% endif %}>3+ verified</option>
+          <option value="5" {% if min_verified == '5' %}selected{% endif %}>5+ verified</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="sort" class="form-select form-select-sm">
+          <option value="trust" {% if sort == 'trust' %}selected{% endif %}>Highest trust</option>
+          <option value="verified" {% if sort == 'verified' %}selected{% endif %}>Most verified</option>
+          <option value="name" {% if sort == 'name' %}selected{% endif %}>Name (A-Z)</option>
+          <option value="recent" {% if sort == 'recent' %}selected{% endif %}>Recently joined</option>
+        </select>
+      </div>
+      <div class="col-md-6 text-end small text-muted align-self-center">
+        {{ total }} worker{{ total|pluralize }} found
+        {% if q or skill or location or min_trust or min_verified %}· <a href="{% url 'workers:explore' %}">Clear</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</form>
+
+{% if page %}
+<div class="row g-3">
+  {% for w in page %}
+    <div class="col-md-6 col-lg-4 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-center mb-3">{% avatar w 88 %}</div>
+          <h6 class="mb-1 text-center">{{ w.full_name }}</h6>
+          {% if w.headline %}<p class="small text-muted text-center mb-2">{{ w.headline }}</p>{% endif %}
+          <div class="d-flex justify-content-around small mb-2">
+            <div class="text-center"><div class="fw-bold text-primary">{{ w.latest_score|floatformat:0|default:"—" }}</div><div class="text-muted">Trust</div></div>
+            <div class="text-center"><div class="fw-bold text-success">{{ w.active_count }}</div><div class="text-muted">Verified</div></div>
+          </div>
+          {% if w.location %}<div class="small text-muted text-center mb-2">{{ w.location }}</div>{% endif %}
+          <div class="d-grid gap-2"><a href="{% url 'workers:portfolio_public' w.slug %}" class="btn btn-sm btn-primary">View Profile</a></div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+
+{% if page.has_other_pages %}
+<nav class="mt-4">
+  <ul class="pagination justify-content-center">
+    {% if page.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page.previous_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">Previous</a></li>{% endif %}
+    <li class="page-item disabled"><span class="page-link">Page {{ page.number }} of {{ page.paginator.num_pages }}</span></li>
+    {% if page.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page.next_page_number }}{% for k,v in request.GET.items %}{% if k != 'page' %}&{{ k }}={{ v }}{% endif %}{% endfor %}">Next</a></li>{% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="alert alert-info text-center">
+  <h5>No workers match your filters.</h5>
+  <p class="mb-0">Try <a href="{% url 'workers:explore' %}">clearing filters</a> or search for a different skill.</p>
+</div>
+{% endif %}
+{% endblock %}

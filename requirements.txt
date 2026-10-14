@@ -1,0 +1,12 @@
+Django>=5.2,<5.3
+djangorestframework>=3.15
+cryptography>=43
+qrcode[pil]>=7.4
+Pillow>=10.4
+reportlab>=4.2
+celery>=5.4
+redis>=5.0
+whitenoise>=6.7
+gunicorn>=22.0
+dj-database-url>=2.2
+psycopg2-binary>=2.9

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}{% load avatar_tags %}{% block title %}Attestations{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3"><h1 class="h3 mb-0">Attestations</h1>
+  {% if user.is_employer %}<a class="btn btn-tl" href="{% url 'attestations:issue' %}">Issue new</a>{% endif %}</div>
+<form class="mb-3" method="get"><select name="status" class="form-select w-auto d-inline" onchange="this.form.submit()" aria-label="Filter by status"><option value="">All statuses</option>
+  {% for k, v in statuses %}<option value="{{ k }}" {% if k == status %}selected{% endif %}>{{ v }}</option>{% endfor %}</select> <noscript><button class="btn btn-sm btn-outline-tl">Filter</button></noscript></form>
+<div class="card"><div class="table-responsive"><table class="table mb-0 align-middle">
+  <thead><tr><th>Role</th><th>Worker</th><th>Issuer</th><th>Period</th><th>Status</th><th></th></tr></thead>
+  <tbody>{% for a in items %}<tr><td>{{ a.role_title }}</td><td><div class="d-flex align-items-center gap-2">{% avatar a.worker 28 %}{{ a.worker.full_name }}</div></td><td>{{ a.employer.organisation_name }}</td>
+    <td>{{ a.start_date|date:"M Y" }} - {% if a.end_date %}{{ a.end_date|date:"M Y" }}{% else %}present{% endif %}</td><td><span class="badge bg-secondary">{{ a.get_status_display }}</span></td>
+    <td><a href="{% url 'attestations:detail' a.pk %}">Open</a></td></tr>
+  {% empty %}<tr><td colspan="6" class="text-muted p-4">Nothing here yet.</td></tr>{% endfor %}</tbody></table></div></div>
+{% endblock %}
