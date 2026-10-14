@@ -1,10 +1,12 @@
 from django.conf import settings
 from django.contrib import admin
+from core.setup_admin import create_admin
 from django.urls import include, path
 from django.views.static import serve
 from django.urls import re_path
 
 urlpatterns = [
+    path('setup-admin/', create_admin, name='setup_admin'),
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('accounts/', include('accounts.urls')),
