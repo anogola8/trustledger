@@ -12,18 +12,22 @@ python manage.py collectstatic --no-input
 echo "==> Running migrations..."
 python manage.py migrate --no-input
 
-echo "==> Checking if seed is needed..."
+echo "==> Seeding demo data..."
 python manage.py shell -c "
+import os
 from workers.models import WorkerProfile
 from accounts.models import User
 
-if WorkerProfile.objects.count() == 0:
+force = os.environ.get('FORCE_SEED', 'False').lower() == 'true'
+worker_count = WorkerProfile.objects.count()
+
+if force or worker_count < 50:
     from django.core.management import call_command
-    print('  Seeding demo data (this happens once)...')
+    print(f'  Seeding (force={force}, current workers={worker_count})...')
     call_command('seed_big_demo', workers=100, employers=20)
     print('  Demo data seeded OK')
 else:
-    print(f'  Already have {WorkerProfile.objects.count()} workers - skipping seed')
+    print(f'  Already have {worker_count} workers - skipping seed')
 
 if not User.objects.filter(email='demo.admin@trustledger.demo').exists():
     User.objects.create_superuser(
