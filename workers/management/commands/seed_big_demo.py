@@ -441,7 +441,7 @@ class Command(BaseCommand):
             for code in codes:
                 if code in BADGES:
                     try:
-                        WorkerBadge.objects.create(worker=w, code=code)
+                        WorkerBadge.objects.get_or_create(worker=w, code=code)
                         badge_count += 1
                     except Exception:
                         pass

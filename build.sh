@@ -24,8 +24,12 @@ worker_count = WorkerProfile.objects.count()
 if force or worker_count < 50:
     from django.core.management import call_command
     print(f'  Seeding (force={force}, current workers={worker_count})...')
-    call_command('seed_big_demo', workers=100, employers=20)
-    print('  Demo data seeded OK')
+    try:
+        call_command('seed_big_demo', workers=100, employers=20, clear=True)
+        print('  Demo data seeded OK')
+    except Exception as e:
+        print(f'  Seed error (non-fatal): {e}')
+        print('  Continuing with existing data...')
 else:
     print(f'  Already have {worker_count} workers - skipping seed')
 
